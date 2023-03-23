@@ -1,8 +1,13 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-
 require('dotenv').config();
+const multer = require('multer')
+
+const uploader = require('./config/config')
+const cloudinary = require('./config/cloudinary')
+
+
 
 const PORT = process.env.PORT;
 const MONGO_CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING;
@@ -16,6 +21,14 @@ app.get("/", (request, response) => {
         data: [],
     });
 });
+
+app.post("/upload", uploader.single("file"), async (req, res) => {
+    const upload = await cloudinary.v2.uploader.upload(req.file.path);
+    return res.json({
+        success: true,
+        file: upload.secure_url,
+    })
+})
 
 app.listen(PORT, () => {
     mongoose
